@@ -11,6 +11,7 @@
 
 (defn init []
   (on-js-reload)
+  (.addEventListener js/document "keydown" view/handle-keydown!)
   (js/setInterval world/tick! 1000))
 
 (defonce start

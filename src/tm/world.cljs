@@ -6,6 +6,7 @@
    :fstate fstate
    :cstate sstate
    :ccell  0
+   :alphabet #{\0,\1}
    :moves  moves
    :tape   (vec input)
    :rstate "running"})
@@ -69,6 +70,9 @@
 
 (defonce app-state
   (reagent/atom atm2))
+
+(defn restart! [input]
+  (swap! app-state set-tape input))
 
 (defn tick! []
   (swap! app-state tm-step))

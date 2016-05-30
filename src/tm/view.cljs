@@ -1,7 +1,7 @@
 (ns tm.view
   (:require [tm.world :as world]
-            [clojure.string :as string]))
-
+            [clojure.string :as string]
+            [reagent.core :as reagent]))
 (def tm-box-color "#c68c53")
 (def tm-state-colors {"running"     "dimgray"
                       "halt_acc"    "lawngreen"
@@ -20,6 +20,24 @@
           :y 90
           :fill "black"
           :font-size "40px"} c])
+
+(defonce input-state
+  (reagent/atom (string/join (:tape @world/app-state))))
+
+(defn change-input [input c]
+  (if (contains? (:alphabet @world/app-state) c)
+    (str input c)
+    input))
+
+(defn handle-keydown! [e]
+  (when-let [c (.fromCharCode js/String (.-keyCode e))]
+  (swap! input-state change-input c)))
+
+; Helper function to compute starting character for displaying
+; a string.
+; TODO: Assumes a certain font size
+(defn start-input-char [box-width, nchars]
+  (max 0 (- nchars (/ box-width 13))))
 
 (defn tm-view [{:as world :keys [rstate cstate ccell tape]}]
   [:div {:style {:font-family "Courier New"
@@ -74,7 +92,39 @@
       [:text {:x 392
               :y 160
               :fill "black"
-              :font-size "40px"} cstate]]])
+              :font-size "40px"} cstate]
+      ; Tape input box
+      [:rect {:x 518
+              :y 175
+              :width  152
+              :height  18
+              :fill "white"
+              :stroke-width 2
+              :stroke "black"}]
+      ; Tape input
+      [:text {:x 523
+              :y 190
+              :fill "black"
+              :font-size "20px"}
+                ; TODO: Get rectangle width from input box
+                (subs @input-state (start-input-char 152
+                                     (count @input-state)))]
+      ; Clear button
+      [:circle {:cx 500
+                :cy 185
+                :r  5
+                :stroke "black"
+                :stroke-width 1
+                :fill "white"
+                :onClick #(swap! input-state (fn [] (str)))}]
+      ; Reset button
+      [:circle {:cx 685
+                :cy 185
+                :r  5
+                :stroke "black"
+                :stroke-width 1
+                :fill "dimgray"
+                :onClick #(world/restart! @input-state)}]]])
 
 (defn root-view []
   [tm-view @world/app-state])
