@@ -50,23 +50,29 @@
   (assoc (reset-tm tm) :tape (vec input)))
 
 ; Evil TM - reject any string with a 0 by running forever.
-(def atm (tm "1111" "q1" #{"q3"}
-             #{["q1" \0 "q2" \0 1]
-               ["q1" \1 "q1" \1 1]
-               ["q1" "_" "q3" "_" 1]
-               ["q2" \0 "q2" \0 1]
-               ["q2" \1 "q2" \1 1]
-               ["q2" "_" "q2" "_" 1]}))
+(def q1 "Okay - no 0s found so far")
+(def q2 "Evil 0 found - endless march right has begun")
+(def q3 "Accepted - string is pure")
+(def atm (tm "1111" q1 #{q3}
+             #{[q1 \0 q2 \0 1]
+               [q1 \1 q1 \1 1]
+               [q1 "_" q3 "_" 1]
+               [q2 \0 q2 \0 1]
+               [q2 \1 q2 \1 1]
+               [q2 "_" q2 "_" 1]}))
 
 ; Weird TM - reject any string with a 1 by going left until the tape is
 ; exhausted.
-(def atm2 (tm "0000" "q1" #{"q3"}
-             #{["q1" \0 "q1" \0 1]
-               ["q1" \1 "q2" \1 -1]
-               ["q1" "_" "q3" "_" 1]
-               ["q2" \0 "q2" \0 -1]
-               ["q2" \1 "q2" \1 -1]
-               ["q2" "_" "q2" "_" -1]}))
+(def q4 "Okay - no 1s found so far")
+(def q5 "Evil 1 found - will be rejected")
+(def q6 "Accepted - string is pure")
+(def atm2 (tm "0000" q4 #{q6}
+             #{[q4 \0 q4 \0 1]
+               [q4 \1 q5 \1 -1]
+               [q4 "_" q6 "_" 1]
+               [q5 \0 q5 \0 -1]
+               [q5 \1 q5 \1 -1]
+               [q5 "_" q5 "_" -1]}))
 
 (defonce app-state
   (reagent/atom atm2))
