@@ -1,6 +1,5 @@
 (ns ^:figwheel-always tm.core
-    (:require [tm.world :as world]
-              [tm.view :as view]
+    (:require [tm.view :as view]
               [reagent.core :as reagent]))
 
 (enable-console-print!)
@@ -12,7 +11,7 @@
 (defn init []
   (on-js-reload)
   (.addEventListener js/document "keydown" view/handle-keydown!)
-  (js/setInterval world/tick! 1000))
+  (js/setInterval view/tick! 1000))
 
 (defonce start
   (init))

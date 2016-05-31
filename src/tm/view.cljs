@@ -21,6 +21,20 @@
           :fill "black"
           :font-size "40px"} c])
 
+(defn sim-step! []
+  (swap! world/app-state world/tm-step))
+
+(defonce tm-speed
+  (reagent/atom 0))
+
+(defonce sim-clock
+  (reagent/atom 0))
+
+(defn tick! []
+  (+ 1 @sim-clock)
+  (when (and (not= @tm-speed 0) (= (mod @sim-clock @tm-speed) 0))
+    (sim-step!)))
+
 (defonce input-state
   (reagent/atom (string/join (:tape @world/app-state))))
 
@@ -36,8 +50,13 @@
 ; Helper function to compute starting character for displaying
 ; a string.
 ; TODO: Assumes a certain font size
-(defn start-input-char [box-width, nchars]
+(defn start-input-char [box-width nchars]
   (max 0 (- nchars (/ box-width 13))))
+
+; Helper function to truncate string to fix in box
+; TODO: Assumes a certain font size
+(defn truncate-for-box [s box-width]
+  (subs s 0 (/ box-width 9)))
 
 (defn tm-view [{:as world :keys [rstate cstate ccell tape]}]
   [:div {:style {:font-family "Courier New"
@@ -81,36 +100,62 @@
               :stroke-width 5
               :stroke "black"}]
       ; Current state indicator
-      [:rect {:x 385
-              :y 120
-              :width 60
-              :height 60
-              :fill "white"
-              :stroke-width 5
+      [:rect {:x 180
+              :y 110
+              :width 405
+              :height 20
+              :fill "black"
+              :stroke-width 0
               :stroke "black"}]
       ; Current state
-      [:text {:x 392
-              :y 160
-              :fill "black"
-              :font-size "40px"} cstate]
+      [:text {:x 184
+              :y 125
+              :fill "aqua"
+              :font-family "monospace"
+              :font-size "15px"} (truncate-for-box cstate 400)]
+      ; Go button
+      [:circle {:cx 685
+                :cy 116 
+                :r  5
+                :stroke "black"
+                :stroke-width 1
+                :fill (if (> @tm-speed 0) "lawngreen" "dimgray")
+                :onClick #(swap! tm-speed (fn [] 1))}]
+      ; Stop button
+      [:circle {:cx 685
+                :cy 139
+                :r  5
+                :stroke "black"
+                :stroke-width 1
+                :fill (if (> @tm-speed 0) "dimgray" "red")
+                :onClick #(swap! tm-speed (fn [] 0))}]
+      ; Step button
+      [:circle {:cx 685
+                :cy 162
+                :r  5
+                :stroke "black"
+                :stroke-width 1
+                :fill "dimgray"
+                :onClick #(sim-step!)}]
       ; Tape input box
-      [:rect {:x 518
+      [:rect {:x 475
               :y 175
-              :width  152
+              :width  197
               :height  18
-              :fill "white"
+              :fill "black"
               :stroke-width 2
               :stroke "black"}]
       ; Tape input
-      [:text {:x 523
+      [:text {:x 477
               :y 190
-              :fill "black"
+              :fill "red"
+              :font-family "monospace"
               :font-size "20px"}
                 ; TODO: Get rectangle width from input box
-                (subs @input-state (start-input-char 152
+                (subs @input-state (start-input-char 197
                                      (count @input-state)))]
       ; Clear button
-      [:circle {:cx 500
+      [:circle {:cx 462
                 :cy 185
                 :r  5
                 :stroke "black"
@@ -124,7 +169,32 @@
                 :stroke "black"
                 :stroke-width 1
                 :fill "dimgray"
-                :onClick #(world/restart! @input-state)}]]])
+                :onClick #(world/restart! @input-state)}]
+      ; Labels
+      [:text {:x 150
+              :y 185
+              :fill "black"
+              :font-size "50px"} "TM 3000"]
+      [:text {:x 110
+              :y 125
+              :fill "black"
+              :font-size "20px"} "State"]
+      [:text {:x 647
+              :y 120
+              :fill "green"
+              :font-size "20px"} "Go"]
+      [:text {:x 625
+              :y 143
+              :fill "red"
+              :font-size "20px"} "Stop"]
+      [:text {:x 625
+              :y 166
+              :fill "yellow"
+              :font-size "20px"} "Step"]
+      [:text {:x 475
+              :y 166
+              :fill "black"
+              :font-size "20px"} "Reset"]]])
 
 (defn root-view []
   [tm-view @world/app-state])

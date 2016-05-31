@@ -73,6 +73,3 @@
 
 (defn restart! [input]
   (swap! app-state set-tape input))
-
-(defn tick! []
-  (swap! app-state tm-step))
