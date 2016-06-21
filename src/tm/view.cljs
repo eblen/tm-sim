@@ -58,7 +58,7 @@
 (defn truncate-for-box [s box-width]
   (subs s 0 (/ box-width 9)))
 
-(defn tm-view [{:as world :keys [rstate cstate ccell tape]}]
+(defn tm-view [{:as world :keys [rstate cstate labels ccell tape]}]
   [:div {:style {:font-family "Courier New"
                  :text-align "center"}}
     [:svg {:width 1000 :height 500}
@@ -112,7 +112,7 @@
               :y 125
               :fill "aqua"
               :font-family "monospace"
-              :font-size "15px"} (truncate-for-box cstate 400)]
+              :font-size "15px"} (truncate-for-box (get labels cstate) 400)]
       ; Go button
       [:circle {:cx 685
                 :cy 116 
