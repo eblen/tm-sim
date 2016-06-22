@@ -148,7 +148,7 @@
       ; Tape input
       [:text {:x 477
               :y 190
-              :fill "red"
+              :fill "aqua"
               :font-family "monospace"
               :font-size "20px"}
                 ; TODO: Get rectangle width from input box
