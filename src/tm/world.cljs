@@ -38,7 +38,7 @@
            (cond (< ncell 0) "halt_no_acc"
                  (contains? (tm :fstate) nstate) "halt_acc"
                  :else "running")]
-       (assoc tm :cstate nstate :ccell ncell :tape ntape :rstate nrstate))
+       (assoc tm :cstate nstate :ccell (max 0 ncell) :tape ntape :rstate nrstate))
      (assoc tm :rstate "halt_no_acc"))))
 
 (defn tm-multistep [tm n]
