@@ -2,13 +2,17 @@
   (:require [reagent.core :as reagent]
             [tm.machines  :as machines]))
 
+(defn find-num-states [moves]
+  (+ 1 (reduce #(max %1 (get %2 0) (get %2 2)) 0 moves)))
+
 (defn create-tm [{:keys [input sstate fstate labels moves]}]
   {:sstate sstate
    :fstate fstate
    :cstate sstate
+   :size   (find-num-states moves)
    :labels labels
    :ccell  0
-   :alphabet #{\0,\1}
+   :alphabet [\0,\1,\ ]
    :moves  moves
    :tape   (vec input)
    :rstate "running"})

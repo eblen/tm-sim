@@ -6,6 +6,8 @@
 (def tm-state-colors {"running"     "dimgray"
                       "halt_acc"    "lawngreen"
                       "halt_no_acc" "red"})
+(def table-hl-color "#ff6f00")
+
 (defn tape-cell [x]
   [:rect {:x x
           :y 50
@@ -39,7 +41,8 @@
   (reagent/atom (string/join (:tape @world/app-state))))
 
 (defn change-input [input c]
-  (if (contains? (:alphabet @world/app-state) c)
+  (if (and (not= c \ )
+      (some #{c} (:alphabet @world/app-state)))
     (str input c)
     input))
 
@@ -58,9 +61,28 @@
 (defn truncate-for-box [s box-width]
   (subs s 0 (/ box-width 9)))
 
-(defn tm-view [{:as world :keys [rstate cstate labels ccell tape]}]
+(defn move-str [s a moves fstate]
+  (if-let [m (first (filter #(let [[s2 a2 _ _ _] %]
+                    (and (= s s2) (= a a2))) moves))]
+    (str (get m 2) (if (= \ (get m 3)) "-" (get m 3))
+                   (if (= 1 (get m 4)) "R" "L"))
+    (if (contains? fstate s) "ACC" "REJ")))
+
+(defn tm-view [{:as world :keys [rstate fstate cstate size labels alphabet ccell moves tape]}]
   [:div {:style {:font-family "Courier New"
                  :text-align "center"}}
+    [:table {:style {:width "300px"}}
+      [:thead [:tr [:td ]
+        (for [a (identity alphabet)] [:th (if (= \  a) "-" (identity a))])]]
+      [:tbody
+        ; (for [s (range size)] [:tr [:td [:b (identity s)]]
+        (for [s (range size)] [:tr [:td [:b
+          (if (= s cstate) [:span {:style {:color table-hl-color}} (identity s)]
+                           (identity s))]]
+          (for [a (identity alphabet)] [:td
+            (if (and (= s cstate) (= a (nth tape ccell)))
+              [:b [:span {:style {:color table-hl-color}} (move-str s a moves fstate)]]
+              (move-str s a moves fstate))])])]]
     [:svg {:width 1000 :height 500}
       ; TM state light
       [:circle {:cx 415
