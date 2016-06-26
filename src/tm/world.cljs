@@ -53,7 +53,7 @@
   (assoc tm :cstate (tm :sstate) :ccell 0 :rstate "running"))
 
 (defn set-tape [tm input]
-  (assoc (reset-tm tm) :tape (vec input)))
+  (assoc (reset-tm tm) :tape (append-tape (vec input) 0)))
 
 (defonce app-state
   (reagent/atom (create-tm machines/tm1)))
